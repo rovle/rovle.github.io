@@ -2476,7 +2476,7 @@ h6
 	bottom:0;
 	left:51%;
 	right:51%;
-	background:#c05b4d;
+	background:#fe5185;
 	transition-duration:.2s;
 	transition-property:right,left;
 	transition-timing-function:ease-out
@@ -2516,7 +2516,7 @@ h6
 
 .post .post-header .post-meta .post-category a:hover
 {
-	color:#c05b4d
+	color:#fe5185
 }
 
 .post .post-header .post-meta .more-meta::before
@@ -2580,7 +2580,7 @@ h6
 
 .post .post-toc .post-toc-content .toc-link.active
 {
-	color:#c05b4d
+	color:#fe5185
 }
 
 @media screen and (max-width:1185px) {
