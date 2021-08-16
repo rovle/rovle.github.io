@@ -914,14 +914,14 @@ blockquote table {
 }
 
 .epigraph blockquote::before {
-	font-family: Verdana;
+	font-family: unica-one;
 	content: "\201C";
 	left: -.975em;
 	top: -.5em
 }
 
 .epigraph blockquote::after {
-	font-family: Verdana;
+	font-family: unica-one;
 	content: "\201D";
 	right: -.975em;
 	bottom: -1em
