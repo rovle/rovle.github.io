@@ -448,8 +448,9 @@ html {
 body {
 	padding: 0;
 	margin: 0;
-	font-family: source sans pro, helvetica neue, Arial, sans-serif;
-	font-weight: 400;
+	font-family: source-code-pro, monospace;
+	font-weight: 300;
+	font-style: normal;	
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	line-height: 1.5;
