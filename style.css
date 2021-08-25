@@ -295,9 +295,12 @@ a:hover {
 }
 
 .content a {
+	font-family: source-serif-4, serif;
+	font-weight: 400;
+	font-style: normal;
 	word-wrap: break-word;
 	border: none;
-	box-shadow: inset 0 -4px 0 #018574;
+	box-shadow: inset 0 -4px 0 #151616;
 	transition-property: box-shadow;
 	transition-duration: .1s
 }
@@ -352,13 +355,13 @@ body {
 	font-family: "Garamond", sans-serif
 }
 
-a {
-	border-bottom: 2px solid transparent
+a,
+p {
+	color: #000;
 }
 
 a:hover {
-	border-bottom: 2px solid #fe5185;
-	color: rgb(0, 0, 0)
+		color: rgb(0, 0, 0)
 }
 
 #home-title {
@@ -373,13 +376,13 @@ h3 {
 
 .content a:hover {
 	background-color: #fe5185;
-	box-shadow: inset 0 -4px 0 #fe5185
+	box-shadow: inset 0 -3px 0 #fe5185
 }
 
 .content a {
 	word-wrap: break-word;
 	border: none;
-	box-shadow: inset 0 -4px 0 #fe5185;
+	box-shadow: inset 0 -3px 0 #fe5185;
 	transition-property: background-color
 }
 
@@ -472,7 +475,7 @@ body {
 }
 
 a {
-	color: #34495e;
+	color: #000000;
 	text-decoration: none
 }
 
