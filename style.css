@@ -353,12 +353,12 @@ body {
 }
 
 a {
-	border-bottom: 3px solid transparent
+	border-bottom: 2px solid transparent
 }
 
 a:hover {
-	border-bottom: 3px solid #fe5185;
-	color: #333
+	border-bottom: 2px solid #fe5185;
+	color: rgb(0, 0, 0)
 }
 
 #home-title {
