@@ -883,7 +883,7 @@ blockquote table {
 }
 
 .epigraph {
-	margin: 2em auto;
+	margin: 0.8em auto;
 	padding: .5em 2.5em .375em;
 	overflow: hidden
 }

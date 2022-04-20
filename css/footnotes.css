@@ -1,0 +1,77 @@
+.big70small100 {
+    width: 70%;
+}
+.big50small100 {
+    width: 49%;
+}
+@media (max-width: 1000px) {
+    .big70small100 {
+        width: 100%;
+    }
+    .big50small100 {
+        width: 100%;
+    }
+}
+
+/*
+sidenotes
+https://gertjanvandenburg.com/blog/how_i_made/
+https://github.com/edwardtufte/tufte-css/blob/gh-pages/tufte.css
+*/
+/*body { counter-reset: sidenote-counter; }*/
+
+.sidenote, .marginnote { float: right;
+                         clear: right;
+                         margin-right: -25%;
+                         width: 20%;
+                         margin-top: 0px;
+                         margin-bottom: 16px;
+                         font-size: 0.9rem;
+                         vertical-align: baseline;
+                         position: relative; }
+
+.sidenote-number { counter-increment: sidenote-counter; }
+
+.sidenote-number:after, .sidenote:before { font-family: 'Old Standard TT', serif;
+                                           position: relative;
+                                           vertical-align: baseline;
+                                            margin-left: -0.2em;
+                                            margin-right: 0.3em;
+                                            font-weight: 300;
+                                            color: #fe5185;}
+
+.sidenote-number:after { content: counter(sidenote-counter);
+                         font-size: 0.9rem;
+                         top: -0.5rem;
+                         left: 0.1rem;}
+
+.sidenote:before { content: counter(sidenote-counter) " ";
+                   top: -0.5rem; }
+
+blockquote .sidenote, blockquote .marginnote { margin-right: -82%;
+                                               min-width: 59%;
+                                               text-align: left; }
+
+label.sidenote-number { display: inline;
+    cursor: pointer;
+}
+
+input.margin-toggle { display: none;
+    cursor: pointer;
+}
+
+label.margin-toggle:not(.sidenote-number) { display: none; 
+}
+
+
+label.margin-toggle:not(.sidenote-number) { display: inline; }
+  .sidenote, .marginnote { display: none; }
+  .margin-toggle:checked + .sidenote,
+  .margin-toggle:checked + .marginnote { display: block;
+                                         float: left;
+                                         left: 1rem;
+                                         clear: both;
+                                         width: 95%;
+                                         margin: 1rem 2.5%;
+                                         vertical-align: baseline;
+                                         position: relative; } 
