@@ -479,7 +479,8 @@ body {
 
 @media screen and (max-width:800px) {
 	body {
-		border-top: 0
+		border-top: 0;
+        font-size: 14px;
 	}
 }
 
