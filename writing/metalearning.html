@@ -36,6 +36,8 @@
         <link href="https://fonts.googleapis.com/css2?family=EB+Garamond&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://use.typekit.net/ssc3wax.css">
         <link href="https://fonts.googleapis.com/css2?family=Old+Standard+TT&display=swap" rel="stylesheet">
+
+        <script type="text/javascript" id="MathJax-script" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     </head>
 
     <body id="page">
@@ -101,20 +103,198 @@
 
     	<main class="site-main section-inner thin animated fadeIn faster">
 		<div class="content">
-            <h1 id="gpt-3-in-context-model-fitting-experiments">GPT-3 In-context model fitting experiments</h1>
-<h2 id="introduction">Introduction</h2>
-<p>Much has been written and much has been observed about the abilities of GPT-3 on <a href="https://www.lesswrong.com/posts/6Hee7w2paEzHsD6mn/collection-of-gpt-3-results">many tasks</a>. Most of these showcased capabilities, though not all, pertain to <strong>writing convicing text</strong> – such as <a href="https://www.lesswrong.com/posts/bDMoMvw2PYgijqZCC/i-wanted-to-interview-eliezer-yudkowsky-but-he-s-busy-so-i">simulating Eliezer Yudkowsky</a> – but, not to undermine GPT-3’s impressiveness at performing these tasks, we might call this the <em>predictable</em> part of its ouevre. It only makes sense that a better language modelling is, well, going to be better at writing text.</p>
+            <h1 id="who-models-the-models-that-model-models-an-exploration-of-gpt-3s-in-context-model-fitting-ability">Who models the models that model models? An exploration of GPT-3’s in-context model fitting ability</h1>
+<h3 id="introduction">Introduction</h3>
+<p>Much has been written and much has been observed about the abilities of GPT-3 on <a href="https://www.lesswrong.com/posts/6Hee7w2paEzHsD6mn/collection-of-gpt-3-results">many tasks</a>. Most of these capabilities, though not all, pertain to <strong>writing convicing text</strong>, but, not to undermine GPT-3’s impressiveness at performing these tasks, we might call this the <em>predictable</em> part of its ouevre. It only makes sense that a better language modelling is, well, going to be better at writing text.</p>
 <p>Deeper and comparatively much less explored is the <em>unpredictable</em> ability of GPT-3 to learn new tasks by just <strong>seeing a few examples</strong>, without any training/backpropagation – the so called in-context learning (sometimes called metalearning).</p>
 <p>The <a href="https://arxiv.org/abs/2005.14165">original paper announcing GPT-3</a> contained a handful of examples (perhaps mostly notably examples of GPT-3 learning to perform arithmetic, e.g. accurate addition of up to 5-digit numbers), Gwern has also insightfully <a href="https://www.gwern.net/Scaling-hypothesis#meta-learning">written about it</a>, Frieda Rong has performed <a href="http://ai.stanford.edu/blog/in-context-learning/">some interesting experiments</a>, and there have been various <a href="https://generative.ink/posts/list-sorting-does-not-play-well-with-few-shot/">other</a> <a href="https://arxiv.org/abs/2101.06804">experiments</a> one could chance upon. My curiousity being piqued but not sated by these experiments, and also having had the feeling that, as captivating the arithmetic examples were, they weren’t the most <em>natural</em> question one could ask about a stochastic model’s quantitative capabilities – I decided to investigate whether GPT-3 could <em>fit models in-context</em>.</p>
-<h2 id="the-setup">The Setup</h2>
-<p>What does it mean to fit a model in-context? Well, recall that GPT-3 has a context window (roughly speaking: text it considers before generating additional text) of length 2048 tokens (roughly speaking: words, punctuation, etc.) so the idea is to put feature vectors <em>inside</em> that context window. Of course, this means you cannot fit any larger or higher-dimensional dataset in there.<label for="sn-1" class="margin-toggle sidenote-number"> </label> <input type="checkbox" id="sn-1" class="margin-toggle" /> <span class="sidenote">Except perhaps through the use of <a href="https://www.lesswrong.com/posts/oBpebs5j5ngs3EXr5/a-summary-of-anthropic-s-first-paper-3#Context_Distillation">context distillation</a> or something like that, though at that point you’re not really doing purely in-context learning anymore.</span></p>
+<h3 id="the-setup">The Setup</h3>
+<p>What does it mean to fit a model in-context? Well, recall that GPT-3 has a context window (roughly speaking: text it considers before generating additional text) of length 2048 tokens (roughly speaking: (parts of the) words, punctuation, etc.) so the idea is to put feature vectors <em>inside</em> that context window. Of course, this means you cannot fit any larger or higher-dimensional dataset in there.<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
 <p>In practice this means prompting GPT-3 on input like:</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Input: <span class="dv">94</span>, <span class="dv">47</span>, <span class="dv">84</span>, <span class="dv">31</span>, output <span class="op">=</span> <span class="dv">2</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Input: <span class="dv">89</span>, <span class="dv">51</span>, <span class="dv">73</span>, <span class="dv">31</span>, output <span class="op">=</span> <span class="dv">1</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>[...]</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>Input: <span class="dv">96</span>, <span class="dv">51</span>, <span class="dv">80</span>, <span class="dv">38</span>, output <span class="op">=</span> <span class="dv">2</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>Input: <span class="dv">90</span>, <span class="dv">37</span>, <span class="dv">76</span>, <span class="dv">27</span>, output <span class="op">=</span></span></code></pre></div>
-<p>And then using its output, i.e. the text it generates, as the prediction.<label for="sn-2" class="margin-toggle sidenote-number"> </label> <input type="checkbox" id="sn-2" class="margin-toggle" /> <span class="sidenote">A couple more technical details: In all the experiments I performed, all the numbers were integers. The GPT-3 outputs were always sampled with temperature 0, i.e. they were deterministic – only the most probable output was considered. Hopefully some future work looks at the full distribution over outputs, but I restricted myself for simplicity.</span></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="an">Input:</span><span class="co"> 94, 47, 84, 31, output = 2</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">Input:</span><span class="co"> 89, 51, 73, 31, output = 1</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">...</span><span class="co">]</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>Input: 96, 51, 80, 38, output = 2</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>Input: 90, 37, 76, 27, output =</span></code></pre></div>
+<p>And then taking its output, i.e. the text it generates, as the prediction.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<h3 id="iris-dataset">Iris Dataset</h3>
+<p>Just as there is the <a href="https://en.wikipedia.org/wiki/MNIST_database">MNIST dataset</a> for visual recognition, so too there is a small low-dimensional classification dataset which every would-be classifier has to solve or else sink – the <a href="https://en.wikipedia.org/wiki/Iris_flower_data_set">Iris dataset</a>, comprised of 150 observations of septal/petal height/width of three species of iris (50 observations each). Note that classification in the Iris data set is in a sense trivial, with simple algorithms achieving near-perfect accuracy, but a model still needs to do some meaningful learning, given that it needs to learn to differentiate between three classes based on just a few dozen four-dimensional vectors.</p>
+<p>In order to prevent leakage, as the Iris dataset is all over the internet, as well as to get the more-easily-palatable integers out, I transformed every feature with the transformation</p>
+<p>\[ x_{\text{new}} = \operatorname{round}(14x_{\text{old}} + 6) . \]</p>
+<p>I also split the dataset into 50% train and 50% test folds – so that the model “trained” on, or rather <em>looked</em> at 75 examples.</p>
+<p>I hadn’t quite been expecting what had followed – I had expected GPT-3 to catch on to some patterns, to have a serviceable but not-quite-impressive accuracy – instead, the accuracies, averaged over 5 random dataset shufflings, for Ada (350M params), Babbage (1.3B), Curie (6.7B), and Davinci (175B), compared to kNN (k=5) and logistic regression were:</p>
+<p><span class="math display">$$
+\begin{array}{|c|c|}
+\hline
+\text{Model} &amp; \text{Accuracy} \\
+\hline
+\text{kNN} &amp; 95.73\% \\
+\hline
+\text{Logistic regr.} &amp; 96.26\% \\
+\hline
+\text{Ada} &amp; 89.86\% \\
+\hline
+\text{Babbage} &amp; 93.06\% \\
+\hline
+\text{Curie} &amp; 95.20\% \\
+\hline
+\text{Davinci} &amp; 95.73\% \\
+\hline
+\end{array}
+$$</span> So Curie and Davinci did about as well as kNN<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> and logistic regression. GPT-3, just by <em>looking</em> at feature vectors, solves Iris.</p>
+<p>I also conducted a few other experiments with the Iris dataset. One was not labelling the “input” or “output”, but just sending bare numbers, like this:</p>
+<pre><code>94, 47, 84, 31, 2
+89, 51, 73, 31, 1
+[...]
+91, 48, 75, 31, 2
+96, 51, 80, 38,	</code></pre>
+<p>This seemed to degrade the results very slightly. Scaling up numbers so that all features were in the hundreds also seemed to potentially degrade performance by a few percentage points, but I didn’t investigate that exhaustively either.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
+<h3 id="d-binary-classification-generally">2D binary classification, generally</h3>
+<p>These results, while interesting, only show GPT-3’s model-fitting ability on one dataset. It might, indeed, be that the Iris dataset is, for some reason, unusually easy to classify for GPT-3. That’s why we’re gonna go to a lower dimension, where we’re going to try out a lot different things.</p>
+<p>To test GPT-3 a bit more thoroughly, I constructed a bunch “typical binary classification scenarios”; I tried to think up a set of class distributions which would capture a decent number of realistic-looking two-class binary classification cases, as well as some slightly adversarial ones – e.g. scenario 7 is the analogue of the “XOR” problem, which perceptrons famously cannot learn because they define a linear boundary. Below you can see a random sample of each of these scenarios.</p>
+<p><img src="../assets/distribucije.png" /></p>
+<p>For each of these “scenarios” I sampled a dataset three times; each of those datasets had 50 “train” examples (which were held fixed) and 30 test examples. Here are the results, comparing between kNN (k=5), logistic regression, a custom text-based classifier which I wrote thinking about the easiest text-based-algorithm GPT could learn<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a>, and GPT-3.</p>
+<p><span class="math display">$$
+\begin{array}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+\text{Model} &amp; \text{Scen. 1} &amp; \text{Scen. 2} &amp; \text{Scen. 3} &amp; \text{Scen. 4} &amp; \text{Scen. 5} &amp; \text{Scen. 6} &amp; \text{Scen. 7} &amp; \text{Scen. 8} &amp; \text{Scen. 9}\\
+\hline
+\text{kNN} &amp; 75.56\% &amp; \textbf{78.89%} &amp; 71.11\% &amp; \textbf{93.33%} &amp; \textbf{98.89%} &amp; 75.56\% &amp; \textbf{90.0%} &amp; \textbf{83.33%} &amp; \textbf{68.89%} \\
+\hline
+\text{Logistic regr.}  &amp; 75.56\% &amp; \textbf{78.89%} &amp; 46.67\% &amp; \textbf{93.33%} &amp; 38.89\% &amp; \textbf{81.11%} &amp; 47.78\% &amp; 51.11\% &amp; 47.78\% \\
+\hline
+\hline
+\text{Custom text} &amp; 70.00 \% &amp; 72.22\% &amp; 66.67\% &amp; 75.56\% &amp; 81.11\% &amp; 53.33\% &amp; 42.22\% &amp; 78.89\% &amp; 63.33\% \\
+\hline
+\hline
+\text{Ada} &amp; \textbf{80.0%} &amp; 67.78\% &amp; \textbf{77.78%} &amp; 85.56\% &amp; 91.11\% &amp; 51.11\% &amp; 84.44\% &amp; 68.89\% &amp; 56.67\% \\
+\hline
+\text{Babbage} &amp; 63.33\% &amp; 62.22\% &amp; 72.22\% &amp; 91.11\% &amp; 87.78\% &amp; 55.56\% &amp; 75.56\% &amp; 74.44\% &amp; 66.67\% \\
+\hline
+\text{Curie} &amp; 76.67\% &amp; 71.11\% &amp; 75.56\% &amp; 86.67\% &amp; 93.33\% &amp; 73.33\% &amp; 76.67\% &amp; 64.44\% &amp; 63.33\% \\
+\hline
+\text{Davinci} &amp; 67.78\% &amp; 76.67\% &amp; \textbf{77.78%} &amp; 82.22\% &amp; 95.56\% &amp; 77.78\% &amp; 70.0\% &amp; 72.22\% &amp; 63.33\% \\ 
+\hline
+\end{array}
+$$</span></p>
+<p>And here are the averages, noting that this makes only marginal sense, given that some of the “scenarios” are inherently harder than others. If I were doing this anew, I’d probably standardize all the “scenarios” so that distributions are such that the expected accuracy of say kNN is 80%. But it still seems better to have this, rather than not:</p>
+<p><span class="math display">$$
+\begin{array}{|c|c|}
+\hline
+\text{Model} &amp; \text{Average acc.} \\
+\hline
+\text{kNN} &amp; 81.78\% \\
+\hline
+\text{Logistic regr.} &amp; 62.34\% \\
+\hline
+\text{Custom text} &amp; 67.03\% \\
+\hline
+\text{Ada} &amp; 73.70\% \\
+\hline
+\text{Babbage} &amp; 72.10\% \\
+\hline
+\text{Curie} &amp; 75.68\% \\
+\hline
+\text{Davinci} &amp; 75.93\% \\
+\hline
+\end{array}
+$$</span></p>
+<p>On the graph below each dot denotes the difference in accuracy, for each model, and for each scenario and each random sample of it, compared to kNN – noting that the same reservations about this making only marginal sense still apply.</p>
+<p><img src="../assets/razlike.png" /></p>
+<h4 id="is-there-a-number-sense">Is there a number sense?</h4>
+<p>One of the immediate questions one might have is whether GPT-3 is just operating on the basis of pure symbols, or is there some “number sense” which it is using while fitting these models. To this end, I took each of the above scenarios, and substituted all the digits in the input vectors by the (randomly-generated) mapping <span class="math inline">0 ↦ ’d’, 1 ↦ ’a’, …, 9 ↦ ’x’</span>. Hence the input looked like this:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>Input = mw, mc, output = 1</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>Input = bd, wb, output = 0</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">...</span><span class="co">]</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>Input = wm, cw, output = 1</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>Input = ch, jj, output = </span></code></pre></div>
+<p>Sandi Dušić pointed out that encoding issues might negatively affect results if there are no spaces between the letters, so I tried this version out too:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>Input = m w , m c , output = 1</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>Input = b d , w b , output = 0</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">...</span><span class="co">]</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>Input = w m , c w , output = 1</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>Input = c h , j j , output = </span></code></pre></div>
+<p>Below, you can see the results; all the models were run with Davinci. (So the last row is also the last row of the last table.)</p>
+<p><span class="math display">$$
+\begin{array}{|c|c|c|c|c|c|c|c|c|c|}
+\hline
+\text{Model} &amp; \text{Scen. 1} &amp; \text{Scen. 2} &amp; \text{Scen. 3} &amp; \text{Scen. 4} &amp; \text{Scen. 5} &amp; \text{Scen. 6} &amp; \text{Scen. 7} &amp; \text{Scen. 8} &amp; \text{Scen. 9}\\
+\hline
+\text{Letters} &amp; 48.89\% &amp; 58.89\% &amp; 72.22\% &amp; 52.22\% &amp; 84.44\% &amp; 47.78\% &amp; 47.78\% &amp; 63.33\% &amp; 54.44\% \\
+\hline
+\text{Letters (spaced)}&amp; 56.67\% &amp; 64.44\% &amp; 72.22\% &amp; 62.22\% &amp; 83.33\% &amp; 47.78\% &amp; 48.89\% &amp; 68.89\% &amp; 53.33\% \\
+\hline
+\text{Numbers} &amp; 67.78\% &amp; 76.67\% &amp; 77.78\% &amp; 82.22\% &amp; 95.56\% &amp; 77.78\% &amp; 70.0\% &amp; 72.22\% &amp; 63.33\% \\ 
+\hline
+\end{array}
+$$</span></p>
+<p>As we can see, the letter-models do learn something; the spaced letter being on average a bit better of the two, but both being clearly inferior to the model prompted with numerical vectors.</p>
+<h2 id="learning-regression">Learning regression</h2>
+<p>I also tested, though not nearly as extensively nor with any kind of attempt at systematicity, regression. I exclusively tested functions <span class="math inline">ℝ → ℝ</span> with added noise; the results were sometimes shockingly good, sometimes bad, but the most important part of the bottom line was that GPT-3 <strong>often successfully extrapolates</strong>.</p>
+<p>I’ll showcase just a few examples, showing both success and failure. A reminder that the input to GPT-3 in these examples was of the form:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode markdown"><code class="sourceCode markdown"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>Input = 7, output = -131</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>Input = 24, output = -338</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="co">[</span><span class="ot">...</span><span class="co">]</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>Input = 95, output = -2270</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>Input = 13, output = </span></code></pre></div>
+<p>All of the examples were run with Davinci.</p>
+<p>First, we ask GPT-3 to fit</p>
+<p><span class="math display">$$\begin{align}
+y = -22x + 45 + \epsilon,
+\end{align}$$</span></p>
+<p>where <span class="math inline"><em>ϵ</em></span> is distributed normally with mean <span class="math inline">0</span> and standard deviation <span class="math inline">100</span>. Despite a great amount of noise, only 15 examples in the “train” set, and decently large negative output numbers, GPT-3 learns it quite well:</p>
+<p><img src="../assets/reg1.png" /></p>
+<p>Note the bottom-most two points, where GPT-3 extrapolates faithfully to a region where it hasn’t seen any points before. This does not seem a mere coincidence, but rather – based on my limited experiments – recurs regularly.</p>
+<p>Now we introduce two additions; we fit</p>
+<p><span class="math display">$$\begin{align}
+y = 24x + 95 + \epsilon,
+\end{align}$$</span></p>
+<p>where <span class="math inline"><em>ϵ</em></span> is normally distributed with mean <span class="math inline">0</span> and now a larger standard deviation of <span class="math inline">250</span>, and we also sample <span class="math inline"><em>x</em></span> for training in the range from <span class="math inline">30</span> to <span class="math inline">70</span>, while we test on randomly sampled points from <span class="math inline">0</span> to <span class="math inline">100</span>.</p>
+<p><img src="../assets/reg2.png" /></p>
+<p>As we can see, GPT-3 extrapolates reasonably, though starts being worse as it gets farther away from the training domain. (As in some other examples, it has an “otherwise unreasonable” tendency to output <span class="math inline">0</span> for the input <span class="math inline">0</span>.)</p>
+<p>The following example tests both nonlinearity and nonmonotonicity. So, we’re modelling <span class="math display">$$\begin{align}
+x = x^2 - 88x + 3 + \epsilon,
+\end{align}$$</span> with $being normally distributed with mean <span class="math inline">0</span> and standard deviation <span class="math inline">50</span>. Anyway, the model does reasonably fine in the interpolating region, but does badly when extrapolating:</p>
+<p><img src="../assets/reg3.png" /></p>
+<p>But then, on another example,</p>
+<p><span class="math display">$$\begin{align}
+y = -5x^2 + 35x + 201 + \epsilon,
+\end{align}
+$$</span> <span class="math inline"><em>ϵ</em></span> having standard deviation 600 – it fits the data nicely, both interpolating and extrapolating, despite really big standard deviation and output numbers into negative tens of thousands.</p>
+<p><img src="../assets/reg4.png" /></p>
+<p>I could show some more examples, but they would be pretty similar to these ones. To my best judgment, I don’t think these are at all cherrypicked – in fact, it could be that failure is slightly overrepresented among these few examples, compared to all the examples I’ve looked at.</p>
+<p>All in all, this is a pretty limited span of regression experiments, since I wasn’t pursuing any kind of systematicity in this case as in the classification case; so I’d be antsy to see more done, especially taking <strong>the full distribution of outputs in consideration</strong>, and not just taking the most probable output.</p>
+<h3 id="discussion">Discussion</h3>
+<p>This whole experiment was primarily motivated by my intuition, formed by playing with GPT-3, that there is some analogue of model-fitting going on in the background, probably even when one isn’t prompting it with <em>explicit</em> meta-learning-y stuff – and it seemed like a good first step towards elucidation of that hypothesis to show that there is some quite explicit model-fitting going on, that meta-learning is not just a fancy trick. And as far as that is a coherent hypothesis, this work seems to go into its favor.<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> <a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a></p>
+<hr>
+<p>It also vaguely seemed important to have ways of testing (language/general) model capabilities which</p>
+<ol type="a">
+<li>
+Are language-understanding independent.
+</li>
+<li>
+Can be scaled up indefinitely (i.e. can be made arbitrarily harder).
+</li>
+<li>
+Are leakage-proof (that is, there is nowhere on the internet where the results might already have been written down, in some fashion).
+</li>
+</ol>
+<p>I would say the present work kind of failed to fulfill this promise, given that nothing I tried showed noticeable differences between the 6.7B model and the 175B model – where there “should” have been a noticeable difference – however, further experiments could imaginably amend this, perhaps find sets of numerical model-fitting tasks which exhibit smoother scaling performance growth.</p>
+<p>In fact, exploration of these tasks seems a potentially very fruitful avenue of exploration of what is happening inside these models, or at least how their meta-learning works. There are so many experiments in this direction which I would like to run in, though I’m currently limited both by the lack of time, since there are other experiments I’d like to run which seem higher-impact than merely continuing this line of investigation, and the lack of funding.</p>
+<h3 id="code">Code</h3>
+<p>All code, all metadata and results of each experiment can be found <a href="https://github.com/rovle/gpt3-in-context-fitting">here</a>. I didn’t work much on either code readability, cleanliness or documentation, so you might find it hard to read or reuse it. If you’re interested in running similar experiments, <em>ahem</em>, I suggest you just take a look at what I did for any inspiration and then write something cleaner.</p>
+<section class="footnotes footnotes-end-of-document" role="doc-endnotes">
+<hr />
+<ol>
+<li id="fn1" role="doc-endnote"><p>Except perhaps through the use of <a href="https://www.lesswrong.com/posts/oBpebs5j5ngs3EXr5/a-summary-of-anthropic-s-first-paper-3#Context_Distillation">context distillation</a> or something like that, though at that point you’re not really doing purely in-context learning anymore.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>A couple more technical details: In all the experiments I performed, all the numbers were integers. The GPT-3 outputs were always sampled with temperature 0, i.e. they were deterministic – only the most probable output was considered. Hopefully some future work looks at the full distribution over outputs, but I restricted myself in this way for simplicity.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>I went with k=5 as that’d be my first choice, and k=3 and k=7 had very similar results.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p>Each of these runs cost about ~5 USD, which is why I didn’t go completely overboard with testing and exploring and I would be wont to do.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn5" role="doc-endnote"><p>The classifier works by reducing every number to its tens digit, and then for each test example, each train example votes for it if its ten digits matches it – the example is classified as that class whose members cast the most votes for it. Note that the decent performance of this classifier doesn’t mean something like “GPT-3 is therefore just remembering some shallow text patterns” – while this classifier is defined in textual terms, it is quite geometric in what it actually <em>does</em>, and it is quite similar to kNN in spirit – there is an implicit computation of euclidean distance within the algorithm.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6" role="doc-endnote"><p>Though any reinterpretations of this work which cast a different light would be appreciated.<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7" role="doc-endnote"><p>I have various vague intuitions for the importance of metalearning and its implication for the alignment, but I’ll probably share those in some future essay, leaving this post to be chiefly about the experiment.<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section>
 
 		</div>
 	</main>
