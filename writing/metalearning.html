@@ -8,16 +8,16 @@
         <meta name="theme-color" content="#FE5185">
         <meta name="msapplication-TileColor" content="#FE5185">
 
-        <meta itemprop="name" content="GPT-3 In-context model fitting experiments · Lovre Pesut">
-        <meta itemprop="description" content="Can GPT-3 fit models in-context?">
+        <meta itemprop="name" content="GPT-3" In-context model fitting experiments · Lovre Pesut>
+        <meta itemprop="description" content="Can" GPT-3 fit models in-context?>
 
         
-        <meta property="og:title" content="GPT-3 In-context model fitting experiments · Lovre Pesut" />
-        <meta property="og:description" content="Can GPT-3 fit models in-context?" />
+        <meta property="og:title" content="GPT-3" In-context model fitting experiments · Lovre Pesut />
+        <meta property="og:description" content="Can" GPT-3 fit models in-context? />
         <meta property="og:type" content="article" />
         <meta name="twitter:card" content="summary" />
-        <meta name="twitter:title" content="GPT-3 In-context model fitting experiments · Lovre Pesut" />
-        <meta name="twitter:description" content="Can GPT-3 fit models in-context?" />
+        <meta name="twitter:title" content="GPT-3" In-context model fitting experiments · Lovre Pesut />
+        <meta name="twitter:description" content="Can" GPT-3 fit models in-context? />
 
         <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
         <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
@@ -177,7 +177,7 @@ $$</span> So Curie and Davinci did about as well as kNN<a href="#fn3" class="foo
 \hline
 \end{array}
 $$</span></p>
-<p>And here are the averages, noting that this makes only marginal sense, given that some of the “scenarios” are inherently harder than others. If I were doing this anew, I’d probably standardize all the “scenarios” so that distributions are such that the expected accuracy of say kNN is 80%. But it still seems better to have this, rather than not:</p>
+<p>And here are the averages, noting that this makes only marginal sense, given that some of the “scenarios” are inherently harder than others. If I were doing this anew, I’d probably standardize all the “scenarios” so that distributions are such that the expected accuracy of say kNN is 80%.<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> But it still seems better to have this, rather than not:</p>
 <p><span class="math display">$$
 \begin{array}{|c|c|}
 \hline
@@ -251,7 +251,7 @@ y = 24x + 95 + \epsilon,
 \end{align}$$</span></p>
 <p>where <span class="math inline"><em>ϵ</em></span> is normally distributed with mean <span class="math inline">0</span> and now a larger standard deviation of <span class="math inline">250</span>, and we also sample <span class="math inline"><em>x</em></span> for training in the range from <span class="math inline">30</span> to <span class="math inline">70</span>, while we test on randomly sampled points from <span class="math inline">0</span> to <span class="math inline">100</span>.</p>
 <p><img src="../assets/reg2.png" /></p>
-<p>As we can see, GPT-3 extrapolates reasonably, though starts being worse as it gets farther away from the training domain. (As in some other examples, it has an “otherwise unreasonable” tendency to output <span class="math inline">0</span> for the input <span class="math inline">0</span>.)</p>
+<p>As we can see, GPT-3 extrapolates reasonably, though starts being worse as it gets farther away from the training domain.</p>
 <p>The following example tests both nonlinearity and nonmonotonicity. So, we’re modelling <span class="math display">$$\begin{align}
 y = x^2 - 88x + 3 + \epsilon,
 \end{align}$$</span> with <span class="math inline"><em>ϵ</em></span> being normally distributed with mean <span class="math inline">0</span> and standard deviation <span class="math inline">50</span>. Anyway, the model does reasonably fine in the interpolating region, but does badly when extrapolating:</p>
@@ -265,7 +265,7 @@ $$</span> <span class="math inline"><em>ϵ</em></span> having standard deviation
 <p>I could share some more examples, but they would all be pretty similar to these ones. To my best judgment, I don’t think these are cherrypicked – in fact, it could be that failure is slightly overrepresented among these few examples, compared to all the ones I’ve looked at.</p>
 <p>All in all, this is a pretty limited span of regression experiments, since I wasn’t pursuing any kind of systematicity in this case as in the classification case; so I’d be antsy to see more done, especially taking <strong>the full distribution of outputs in consideration</strong>, and not just taking the most probable output.</p>
 <h3 id="discussion">Discussion</h3>
-<p>This whole experiment was primarily motivated by my intuition, formed by playing with GPT-3, that there is some analogue of model-fitting going on in the background, probably even when one isn’t prompting it with <em>explicit</em> meta-learning-y stuff – and it seemed like a good first step towards elucidation of that hypothesis to show that there is some quite explicit model-fitting going on, that meta-learning is not just a fancy trick. And as far as that is a coherent hypothesis, this work seems to go into its favor.<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a> <a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a></p>
+<p>This whole experiment was primarily motivated by my intuition, formed by playing with GPT-3, that there is some analogue of model-fitting going on in the background, probably even when one isn’t prompting it with <em>explicit</em> meta-learning-y stuff – and it seemed like a good first step towards elucidation of that hypothesis to show that there is some quite explicit model-fitting going on, that meta-learning is not just a fancy trick. And as far as that is a coherent hypothesis, this work seems to go into its favor.<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a> <a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a></p>
 <hr>
 <p>It also vaguely seemed important to have ways of testing (language) model capabilities which</p>
 <ol type="a">
@@ -291,8 +291,9 @@ Are leakage-proof (that is, there is nowhere on the internet where the results m
 <li id="fn3" role="doc-endnote"><p>I went with k=5 as that’d be my first choice, and k=3 and k=7 had very similar results.<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn4" role="doc-endnote"><p>Each of these runs cost about ~5 USD, which is why I didn’t go completely overboard with testing and exploring and I would be wont to do.<a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn5" role="doc-endnote"><p>The classifier works by reducing every number to its tens digit, and then for each test example, each train example votes for it if its ten digits matches it – the example is classified as that class whose members cast the most votes for it. Note that the decent performance of this classifier doesn’t mean something like “GPT-3 is therefore just remembering some shallow text patterns” – while this classifier is defined in textual terms, it is quite geometric in what it actually <em>does</em>, and it is quite similar to kNN in spirit – there is an implicit computation of euclidean distance within the algorithm.<a href="#fnref5" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn6" role="doc-endnote"><p>Though any reinterpretations of this work which cast a different light would be appreciated.<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn7" role="doc-endnote"><p>I have various vague intuitions for the importance of metalearning and its implication for the alignment, but I’ll probably share those in some future essay, leaving this post to be chiefly about the experiment.<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn6" role="doc-endnote"><p>I overall view my methodology here as being quite lacking, and while I don’t think the flaws in it undermine the central conclusion “GPT-3 can fit numerical models in-context”, I do think they prevent one from reading off, or even guessing, the subtler details of what is happening here, which is why I abstained from too much “conclusion fishing” within the text of this post. Due time for that is when I/someone else studies these phenomena much more comprehensively.<a href="#fnref6" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn7" role="doc-endnote"><p>Though any reinterpretations of this work which cast a different light would be appreciated.<a href="#fnref7" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn8" role="doc-endnote"><p>I have various vague intuitions for the importance of metalearning and its implication for the alignment, but I’ll probably share those in some future essay, leaving this post to be chiefly about the experiment.<a href="#fnref8" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
 
