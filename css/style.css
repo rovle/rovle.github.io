@@ -363,6 +363,7 @@ html {
 	background: #fff
 }
 
+a,
 body {
 	color: #000;
 	font-family: source-serif-4, serif;
@@ -372,36 +373,6 @@ a,
 p {
 	color: #000;
 }
-
-a {
-	 position: relative;
-	 display: inline-block;
-	 color: #228475;
-}
- a::before {
-	 position: absolute;
-	 top: 100%;
-	 content: attr(href);
-	 opacity: 0;
-	 display: block;
-	 transition: 0.25s all;
-	 height: 0;
-	 overflow: hidden;
-	 padding: 0.25em 1em;
-	 background: #fff;
-	 box-shadow: 0 0 3px 0 rgba(0, 0, 0, .3);
-	 font-size: 0.8em;
-	 color: #000;
-}
- a:hover::before {
-	 opacity: 1;
-	 display: block;
-	 height: auto;
-     z-index: 9999;
- }
-
-
-
 
 a:hover {
 		color: rgb(0, 0, 0)
